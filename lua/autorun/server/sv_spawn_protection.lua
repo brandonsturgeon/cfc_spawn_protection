@@ -4,11 +4,11 @@ spawnProtectionMoveDelay = 1
 
 -- Table of key enums which are disallowed in spawn protection
 spawnProtectionMovementKeys = {}
-spawnProtectionMovementKeys[IN_JUMP] = true
-spawnProtectionMovementKeys[IN_MOVELEFT] = true
+spawnProtectionMovementKeys[IN_JUMP]      = true
+spawnProtectionMovementKeys[IN_MOVELEFT]  = true
 spawnProtectionMovementKeys[IN_MOVERIGHT] = true
-spawnProtectionMovementKeys[IN_FORWARD] = true
-spawnProtectionMovementKeys[IN_BACK] = true
+spawnProtectionMovementKeys[IN_FORWARD]   = true
+spawnProtectionMovementKeys[IN_BACK]      = true
 
 
 allowedSpawnWeapons = {
