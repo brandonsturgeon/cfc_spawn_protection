@@ -1,7 +1,7 @@
 spawnProtectionHaloColor = Color( 100, 100, 100)
 
-hook.Remove( "PreDrawHalos", "PVPHalos" )  
-hook.Add( "PreDrawHalos", "PVPHalos", function()
+hook.Remove( "PreDrawHalos", "spawnProtectionHalos" )  
+hook.Add( "PreDrawHalos", "spawnProtectionHalos", function()
     local lookent = LocalPlayer():GetEyeTrace().Entity
     if ( IsValid(lookent) and lookent:IsPlayer() ) then
         local target = lookent
