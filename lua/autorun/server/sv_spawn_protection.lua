@@ -29,9 +29,9 @@ function spawnProtectionWeaponChangeCheck( player, oldWeapon, newWeapon)
     local playerInPvP = player:GetNWBool("PVPMode", false)
 
     if (playerInPvP) then 
-          local playerLacksProtection = !player:GetNWBool("hasSpawnProtection", true)
+          local playerLacksSpawnProtection = !player:GetNWBool("hasSpawnProtection", true)
 
-          if (playerLacksProtection) then
+          if (playerLacksSpawnProtection) then
               local weaponIsDisallowed = !allowedSpawnWeapons[newWeapon]
 
               if ( weaponIsDisallowed ) then
