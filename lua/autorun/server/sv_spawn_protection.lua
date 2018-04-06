@@ -1,15 +1,17 @@
 
 -- Time in seconds after moving for the first time that the player will lose spawn protection
-spawnProtectionMoveDelay = 1
+local spawnProtectionMoveDelay = 1
 
 -- Time in seconds before spawn protection wears off if no action is taken
-spawnProtectionDecayTime = 10
+local spawnProtectionDecayTime = 10
 
 -- Prefix for the internal timer names - used to avoid timer collision
-spawnDecayPrefix = "cfc_spawn_decay_timer-"
+local spawnDecayPrefix = "cfc_spawn_decay_timer-"
+
+local delayedRemovalPrefix = "cfc_delayed_spawn_protection_removal_timer-"
 
 -- Table of key enums which are disallowed in spawn protection
-spawnProtectionMovementKeys = {}
+local spawnProtectionMovementKeys = {}
 spawnProtectionMovementKeys[IN_JUMP]      = true
 spawnProtectionMovementKeys[IN_MOVELEFT]  = true
 spawnProtectionMovementKeys[IN_MOVERIGHT] = true
@@ -17,7 +19,7 @@ spawnProtectionMovementKeys[IN_FORWARD]   = true
 spawnProtectionMovementKeys[IN_BACK]      = true
 
 
-allowedSpawnWeapons = {
+local allowedSpawnWeapons = {
     ["Physics Gun"]       = true,
     ["weapon_physgun"]    = true,
     ["weapon_physcannon"] = true,
@@ -45,15 +47,31 @@ local function playerDecayTimerIdentifier( player )
 	return spawnDecayPrefix .. player:SteamID64()
 end
 
+local function playerDelayedRemovalTimerIdentifier( player )
+	return delayedRemovalPrefix .. player:SteamID64()
+end
+
 local function setSpawnProtection( player )
     player:SetNWBool("hasSpawnProtection", true)
 	setPlayerTransparent( player )
+end
+
+local function removeDecayTimer( player )
+	local playerIdentifer = playerDecayTimerIdentifier( player )
+	timer.Remove( playerIdentifer )
+end
+
+local function removeDelayedRemoveTimer( player )
+	local playerIdentifer = playerDelayedRemovalTimerIdentifier( player )
+	timer.Remove( playerIdentifer )
 end
 
 local function removeSpawnProtection( player )
     player:ChatPrint("You've lost spawn protection")
     player:SetNWBool("hasSpawnProtection", false)
 	setPlayerVisible( player )
+	removeDecayTimer( player )
+	removeDelayedRemoveTimer( player )
 end
 
 local function createDecayTimer( player ) 
@@ -63,21 +81,18 @@ local function createDecayTimer( player )
 	end)
 end
 
-local function removeDecayTimer( player )
-	player:ChatPrint("Removing decay timer")
-	local playerIdentifer = playerDecayTimerIdentifier( player )
-	timer.Remove( playerIdentifer )
+local function createDelayedRemoveTimer( player )
+	local playerIdentifer = playerDelayedRemovalTimerIdentifier( player )
+	timer.Create( playerIdentifer, spawnProtectionMoveDelay, 1, function()
+		player:SetNWBool("disablingSpawnProtection", false)
+		removeSpawnProtection( player )
+	end)
 end
 
 local function delayRemoveSpawnProtection( player, _delay )
-	player:ChatPrint("delayRemoveSpawnProtection")
     local delay = _delay or spawnProtectionMoveDelay
     player:SetNWBool("disablingSpawnProtection", true)
-
-    timer.Simple(spawnProtectionMoveDelay, function ()
-        player:SetNWBool("disablingSpawnProtection", false)
-        removeSpawnProtection( player )
-    end)
+	createDelayedRemoveTimer( player )
 end
 
 local function playerIsInPvP( player )
