@@ -25,16 +25,16 @@ allowedSpawnWeapons = {
 
 -- Helpers / Wrappers
 
-function setSpawnProtection( player )
+local function setSpawnProtection( player )
     player:SetNWBool("hasSpawnProtection", true)
 end
 
-function removeSpawnProtection( player )
+local function removeSpawnProtection( player )
     player:ChatPrint("You've left spawn protection")
     player:SetNWBool("hasSpawnProtection", false)
 end
 
-function delayRemoveSpawnProtection( player, _delay )
+local function delayRemoveSpawnProtection( player, _delay )
     local delay = _delay or spawnProtectionMoveDelay
     player:SetNWBool("disablingSpawnProtection", true)
 
@@ -44,36 +44,36 @@ function delayRemoveSpawnProtection( player, _delay )
     end)
 end
 
-function playerIsInPvP( player )
+local function playerIsInPvP( player )
     return player:GetNWBool("PVPMode", false)
 end
 
-function playerHasSpawnProtection( player )
+local function playerHasSpawnProtection( player )
     return player:GetNWBool("playerHasSpawnProtection", false)
 end
 
-function playerIsDisablingSpawnProtection( player )
+local function playerIsDisablingSpawnProtection( player )
     return player:GetNWBool("disablingSpawnProtection", false)
 end
 
-function weaponIsAllowed( weapon )
+local function weaponIsAllowed( weapon )
     return allowedSpawnWeapons[weapon:GetClass()] or false
 end
 
-function keyVoidsSpawnProtection( keyCode )
+local function keyVoidsSpawnProtection( keyCode )
     return spawnProtectionMovementKeys[keyCode] or false
 end
 
 
 -- Hook functions --
 
-function setSpawnProtectionForPvPSpawn( player )
+local function setSpawnProtectionForPvPSpawn( player )
     if ( playerIsInPvP( player ) ) then
         setSpawnProtection( player )
     end
 end
 
-function spawnProtectionWeaponChangeCheck( player, oldWeapon, newWeapon)
+local function spawnProtectionWeaponChangeCheck( player, oldWeapon, newWeapon)
     if (playerIsInPvP( player )) then
 
         if ( !playerHasSpawnProtection( player ) ) then
@@ -85,7 +85,7 @@ function spawnProtectionWeaponChangeCheck( player, oldWeapon, newWeapon)
     end
 end
 
-function spawnProtectionMoveCheck( player, keyCode )
+local function spawnProtectionMoveCheck( player, keyCode )
     if ( !playerIsDisablingSpawnProtection( player ) ) then
 
         if ( playerHasSpawnProtection( player ) ) then
@@ -99,7 +99,7 @@ function spawnProtectionMoveCheck( player, keyCode )
     end
 end
 
-function preventDamageDuringSpawnProtection( player, damageInfo )
+local function preventDamageDuringSpawnProtection( player, damageInfo )
     local playerHasSpawnProtection = player:GetNWBool("hasSpawnProtection", false)
 
     if ( playerHasSpawnProtection ) then
