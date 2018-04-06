@@ -1,4 +1,5 @@
-
+-- Config Variables --
+--
 -- Time in seconds after moving for the first time that the player will lose spawn protection
 local spawnProtectionMoveDelay = 1
 
@@ -8,7 +9,7 @@ local spawnProtectionDecayTime = 10
 -- Prefix for the internal timer names - used to avoid timer collision
 local spawnDecayPrefix = "cfc_spawn_decay_timer-"
 
-local delayedRemovalPrefix = "cfc_delayed_spawn_removal_timer-"
+local delayedRemovalPrefix = "cfc_spawn_removal_timer-"
 
 -- Table of key enums which are disallowed in spawn protection
 local spawnProtectionMovementKeys = {}
@@ -19,6 +20,7 @@ spawnProtectionMovementKeys[IN_FORWARD]   = true
 spawnProtectionMovementKeys[IN_BACK]      = true
 
 
+-- Weapons allowed to the player which won't break spawn protection
 local allowedSpawnWeapons = {
     ["Physics Gun"]       = true,
     ["weapon_physgun"]    = true,
@@ -31,70 +33,79 @@ local allowedSpawnWeapons = {
     ["remotecontroller"]  = true
 }
 
--- Helpers / Wrappers
+-- Helpers / Wrappers --
 
+-- Makes a given player transparent
 local function setPlayerTransparent( player )
-	player:SetRenderMode( RENDERMODE_TRANSALPHA )
-	player:Fire( "alpha", 175, 0 )
+    player:SetRenderMode( RENDERMODE_TRANSALPHA )
+    player:Fire( "alpha", 175, 0 )
 end
 
+-- Returns a given player to visible state
 local function setPlayerVisible( player )
-	player:SetRenderMode( RENDERMODE_NORMAL )
-	player:Fire( "alpha", 255, 0 )
+    player:SetRenderMode( RENDERMODE_NORMAL )
+    player:Fire( "alpha", 255, 0 )
 end
 
+-- Creates a unique name for the Spawn Protection Decay timer
 local function playerDecayTimerIdentifier( player )
-	return spawnDecayPrefix .. player:SteamID64()
+    return spawnDecayPrefix .. player:SteamID64()
 end
 
+-- Creates a unique name for the Delayed Removal Timer
 local function playerDelayedRemovalTimerIdentifier( player )
-	return delayedRemovalPrefix .. player:SteamID64()
+    return delayedRemovalPrefix .. player:SteamID64()
 end
 
+-- Set Spawn Protection
 local function setSpawnProtection( player )
     player:SetNWBool("hasSpawnProtection", true)
-	setPlayerTransparent( player )
 end
 
+-- Remove Decay Timer
 local function removeDecayTimer( player )
-	local playerIdentifer = playerDecayTimerIdentifier( player )
-	timer.Stop( playerIdentifer )
+    local playerIdentifer = playerDecayTimerIdentifier( player )
+    timer.Remove( playerIdentifer )
 end
 
+-- Remove Delayed Removal Timer
 local function removeDelayedRemoveTimer( player )
-	local playerIdentifer = playerDelayedRemovalTimerIdentifier( player )
-	timer.Stop( playerIdentifer )
+    local playerIdentifer = playerDelayedRemovalTimerIdentifier( player )
+    timer.Remove( playerIdentifer )
 end
 
+-- Revoke spawn protection for a player
 local function removeSpawnProtection( player )
     player:ChatPrint("You've lost spawn protection")
     player:SetNWBool("hasSpawnProtection", false)
-	setPlayerVisible( player )
-	timer.Simple(0.1, function()
-		removeDecayTimer( player )
-		removeDelayedRemoveTimer( player )
-	end)
 end
 
-local function createDecayTimer( player ) 
-	local playerIdentifer = playerDecayTimerIdentifier( player )
-	timer.Create( playerIdentifer, spawnProtectionDecayTime, 1, function()
-		removeSpawnProtection( player )
-	end)
+-- Creates a decay timer which will expire after spawnProtectionDecayTime
+local function createDecayTimer( player )
+    local playerIdentifer = playerDecayTimerIdentifier( player )
+    timer.Create( playerIdentifer, spawnProtectionDecayTime, 1, function()
+        removeSpawnProtection( player )
+        setPlayerVisible( player )
+        removeDelayedRemoveTimer( player )
+    end)
 end
 
+-- Creates a delayed removal time which will expire after spawnProtectionMoveDelay
 local function createDelayedRemoveTimer( player )
-	local playerIdentifer = playerDelayedRemovalTimerIdentifier( player )
-	timer.Create( playerIdentifer, spawnProtectionMoveDelay, 1, function()
-		player:SetNWBool("disablingSpawnProtection", false)
-		removeSpawnProtection( player )
-	end)
+    local playerIdentifer = playerDelayedRemovalTimerIdentifier( player )
+    timer.Create( playerIdentifer, spawnProtectionMoveDelay, 1, function()
+        player:SetNWBool("disablingSpawnProtection", false)
+        removeSpawnProtection( player )
+        setPlayerVisible( player )
+        removeDecayTimer( player )
+    end)
 end
 
+-- Used to delay the removal of spawn protection
 local function delayRemoveSpawnProtection( player, _delay )
     local delay = _delay or spawnProtectionMoveDelay
     player:SetNWBool("disablingSpawnProtection", true)
-	createDelayedRemoveTimer( player )
+    createDelayedRemoveTimer( player )
 end
 
 local function playerIsInPvP( player )
@@ -117,15 +128,20 @@ local function keyVoidsSpawnProtection( keyCode )
     return spawnProtectionMovementKeys[keyCode]
 end
 
+
 -- Hook functions --
 
+-- Function called on player spawn to grant spawn protection
 local function setSpawnProtectionForPvPSpawn( player )
     if ( playerIsInPvP( player ) ) then
         setSpawnProtection( player )
-		createDecayTimer( player )
+        setPlayerTransparent( player )
+        createDecayTimer( player )
     end
 end
 
+-- Called on weapon change to check if the weapon is allowed,
+-- and remove spawn protection if it's not
 local function spawnProtectionWeaponChangeCheck( player, oldWeapon, newWeapon)
     if ( playerIsInPvP( player ) ) then
 
@@ -133,14 +149,19 @@ local function spawnProtectionWeaponChangeCheck( player, oldWeapon, newWeapon)
 
             if ( !weaponIsAllowed( newWeapon ) ) then
                 removeSpawnProtection( player )
+                setPlayerVisible( player )
+                removeDecayTimer( player )
+                removeDelayedRemoveTimer( player )
             end
         end
     end
 end
 
+-- Called on player keyDown events to check if a movement key was pressed
+-- and remove spawn protection if so
 local function spawnProtectionMoveCheck( player, keyCode )
     if ( !playerIsDisablingSpawnProtection( player ) ) then
-		
+
         if ( playerHasSpawnProtection( player ) ) then
             local playerIsMovingThemselves = keyVoidsSpawnProtection( keyCode )
 
@@ -151,13 +172,13 @@ local function spawnProtectionMoveCheck( player, keyCode )
     end
 end
 
+-- Prevents damage if a player has spawn protection
 local function preventDamageDuringSpawnProtection( player, damageInfo )
 
     if ( playerHasSpawnProtection( player ) ) then
         damageInfo:SetDamage( 0 )
         return false
     end
-
 end
 
 -- Hooks --
