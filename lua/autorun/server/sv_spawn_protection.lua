@@ -152,7 +152,6 @@ end
 local function preventDamageDuringSpawnProtection( player, damageInfo )
 
     if ( playerHasSpawnProtection( player ) ) then
-        player:ChatPrint("You have spawn protection")
         damageInfo:SetDamage( 0 )
         return false
     end
