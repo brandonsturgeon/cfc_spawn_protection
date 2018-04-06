@@ -8,7 +8,7 @@ local spawnProtectionDecayTime = 10
 -- Prefix for the internal timer names - used to avoid timer collision
 local spawnDecayPrefix = "cfc_spawn_decay_timer-"
 
-local delayedRemovalPrefix = "cfc_delayed_spawn_protection_removal_timer-"
+local delayedRemovalPrefix = "cfc_delayed_spawn_removal_timer-"
 
 -- Table of key enums which are disallowed in spawn protection
 local spawnProtectionMovementKeys = {}
@@ -58,20 +58,22 @@ end
 
 local function removeDecayTimer( player )
 	local playerIdentifer = playerDecayTimerIdentifier( player )
-	timer.Remove( playerIdentifer )
+	timer.Stop( playerIdentifer )
 end
 
 local function removeDelayedRemoveTimer( player )
 	local playerIdentifer = playerDelayedRemovalTimerIdentifier( player )
-	timer.Remove( playerIdentifer )
+	timer.Stop( playerIdentifer )
 end
 
 local function removeSpawnProtection( player )
     player:ChatPrint("You've lost spawn protection")
     player:SetNWBool("hasSpawnProtection", false)
 	setPlayerVisible( player )
-	removeDecayTimer( player )
-	removeDelayedRemoveTimer( player )
+	timer.Simple(0.1, function()
+		removeDecayTimer( player )
+		removeDelayedRemoveTimer( player )
+	end)
 end
 
 local function createDecayTimer( player ) 
