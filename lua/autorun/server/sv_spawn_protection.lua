@@ -108,6 +108,18 @@ local function delayRemoveSpawnProtection( player, _delay )
     createDelayedRemoveTimer( player )
 end
 
+local function playerSpawnedAtEnemySpawnPoint( player )
+    local spawnPoint = player.LinkedSpawnPoint
+    if ( spawnPoint and IsValid(spawnPoint) ) then
+        local spawnPointOwner = spawnPoint:CPPIGetOwner()
+        if ( spawnPointOwner != player ) then
+            return true
+        end
+    end
+
+    return false
+end
+
 local function playerIsInPvP( player )
     return player:GetNWBool("PVPMode", false)
 end
@@ -134,9 +146,11 @@ end
 -- Function called on player spawn to grant spawn protection
 local function setSpawnProtectionForPvPSpawn( player )
     if ( playerIsInPvP( player ) ) then
-        setSpawnProtection( player )
-        setPlayerTransparent( player )
-        createDecayTimer( player )
+        if ( !playerSpawnedAtEnemySpawnPoint ) then
+            setSpawnProtection( player )
+            setPlayerTransparent( player )
+            createDecayTimer( player )
+        end
     end
 end
 
