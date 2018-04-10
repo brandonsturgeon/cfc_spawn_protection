@@ -191,12 +191,18 @@ hook.Add("PlayerSwitchWeapon", "CFCspawnProtectionWeaponChange", spawnProtection
 hook.Remove("PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP")
 hook.Add("PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP", function(player)
     removeSpawnProtection(player)
+    setPlayerVisible( player )
+    removeDecayTimer( player )
+    removeDelayedRemoveTimer( player )
 end)
 
 -- Remove spawn protection when player enters vehicle
 hook.Remove("PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle")
 hook.Add("PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle", function(player)
     removeSpawnProtection(player)
+    setPlayerVisible( player )
+    removeDecayTimer( player )
+    removeDelayedRemoveTimer( player )
 end)
 
 -- Enable spawn protection when spawning in PvP
