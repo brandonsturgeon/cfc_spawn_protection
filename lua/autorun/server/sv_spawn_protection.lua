@@ -13,7 +13,6 @@ local delayedRemovalPrefix = "cfc_spawn_removal_timer-"
 
 -- Table of key enums which are disallowed in spawn protection
 local spawnProtectionMovementKeys = {}
-spawnProtectionMovementKeys[IN_JUMP]      = true
 spawnProtectionMovementKeys[IN_MOVELEFT]  = true
 spawnProtectionMovementKeys[IN_MOVERIGHT] = true
 spawnProtectionMovementKeys[IN_FORWARD]   = true
