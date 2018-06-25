@@ -12,11 +12,11 @@ local spawnDecayPrefix = "cfc_spawn_decay_timer-"
 local delayedRemovalPrefix = "cfc_spawn_removal_timer-"
 
 -- Table of key enums which are disallowed in spawn protection
-local spawnProtectionMovementKeys = {}
-spawnProtectionMovementKeys[IN_MOVELEFT]  = true
-spawnProtectionMovementKeys[IN_MOVERIGHT] = true
-spawnProtectionMovementKeys[IN_FORWARD]   = true
-spawnProtectionMovementKeys[IN_BACK]      = true
+local keyVoidsSpawnProtection = {}
+keyVoidsSpawnProtection[IN_MOVELEFT]  = true
+keyVoidsSpawnProtection[IN_MOVERIGHT] = true
+keyVoidsSpawnProtection[IN_FORWARD]   = true
+keyVoidsSpawnProtection[IN_BACK]      = true
 
 
 -- Weapons allowed to the player which won't break spawn protection
@@ -136,7 +136,7 @@ local function weaponIsAllowed( weapon )
 end
 
 local function keyVoidsSpawnProtection( keyCode )
-    return spawnProtectionMovementKeys[keyCode]
+    return keyVoidsSpawnProtection[keyCode]
 end
 
 
