@@ -119,7 +119,7 @@ local function playerSpawnedAtEnemySpawnPoint( player )
     return false
 end
 
-local function playerIsInPvP( player )
+local function playerIsInPvp( player )
     return player:GetNWBool("PVPMode", false)
 end
 
@@ -138,8 +138,8 @@ end
 -- Hook functions --
 
 -- Function called on player spawn to grant spawn protection
-local function setSpawnProtectionForPvPSpawn( player )
-    if ( playerIsInPvP( player ) ) then
+local function setSpawnProtectionForPvpSpawn( player )
+    if ( playerIsInPvp( player ) ) then
 		if( !playerSpawnedAtEnemySpawnPoint( player ) ) then
 			setSpawnProtection( player )
 			setPlayerTransparent( player )
@@ -151,7 +151,7 @@ end
 -- Called on weapon change to check if the weapon is allowed,
 -- and remove spawn protection if it's not
 local function spawnProtectionWeaponChangeCheck( player, oldWeapon, newWeapon)
-    if ( playerIsInPvP( player ) ) then
+    if ( playerIsInPvp( player ) ) then
 
         if ( playerHasSpawnProtection( player ) ) then
 
@@ -195,7 +195,7 @@ end
 hook.Remove("PlayerSwitchWeapon", "CFCspawnProtectionWeaponChange")
 hook.Add("PlayerSwitchWeapon", "CFCspawnProtectionWeaponChange", spawnProtectionWeaponChangeCheck)
 
--- Remove spawn protection when leaving PvP (just cleanup)
+-- Remove spawn protection when leaving Pvp (just cleanup)
 hook.Remove("PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP")
 hook.Add("PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP", function(player)
 	if( playerHasSpawnProtection( player ) ) then
@@ -219,7 +219,7 @@ end)
 
 -- Enable spawn protection when spawning in PvP
 hook.Remove("PlayerSpawn", "CFCsetSpawnProtection")
-hook.Add("PlayerSpawn", "CFCsetSpawnProtection", setSpawnProtectionForPvPSpawn)
+hook.Add("PlayerSpawn", "CFCsetSpawnProtection", setSpawnProtectionForPvpSpawn)
 
 -- Trigger spawn protection removal on player move
 hook.Remove("KeyPress", "CFCspawnProtectionMoveCheck")
