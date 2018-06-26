@@ -187,7 +187,7 @@ end
 
 -- Prevents damage if a player has spawn protection
 local function preventDamageDuringSpawnProtection( player, damageInfo )
-    return true
+    if playerHasSpawnProtection( player ) then return true end
 end
 
 -- Hooks --
