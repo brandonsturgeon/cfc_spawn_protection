@@ -144,52 +144,43 @@ end
 
 -- Function called on player spawn to grant spawn protection
 local function setSpawnProtectionForPvpSpawn( player )
-    if ( playerIsInPvp( player ) ) then
-		if( !playerSpawnedAtEnemySpawnPoint( player ) ) then
-			setSpawnProtection( player )
-			setPlayerTransparent( player )
-			createDecayTimer( player )
-		end
-    end
+	if not playerIsInPvp( player ) then return end
+	if playerSpawnedAtEnemySpawnPoint( player ) then return end
+	
+	setSpawnProtection( player )
+	setPlayerTransparent( player )
+	createDecayTimer( player )
 end
 
 -- Called on weapon change to check if the weapon is allowed,
 -- and remove spawn protection if it's not
 local function spawnProtectionWeaponChangeCheck( player, oldWeapon, newWeapon)
-    if ( playerIsInPvp( player ) ) then
+	if not playerIsInPvp( player ) then return end
+	if not playerHasSpawnProtection( player ) then return end
+	if weaponIsAllowed( newWeapon ) then return end
 
-        if ( playerHasSpawnProtection( player ) ) then
-
-            if ( !weaponIsAllowed( newWeapon ) ) then
-                removeSpawnProtection( player )
-                setPlayerVisible( player )
-                removeDecayTimer( player )
-                removeDelayedRemoveTimer( player )
-            end
-        end
-    end
+    removeSpawnProtection( player )
+    setPlayerVisible( player )
+    removeDecayTimer( player )
+    removeDelayedRemoveTimer( player )
 end
 
 -- Called on player keyDown events to check if a movement key was pressed
 -- and remove spawn protection if so
 local function spawnProtectionMoveCheck( player, keyCode )
-    if ( !playerIsDisablingSpawnProtection( player ) ) then
+	if playerIsDisablingSpawnProtection( player ) then return end
+	if not playerHasSpawnProtection( player ) then return end	
 
-        if ( playerHasSpawnProtection( player ) ) then
-            local playerIsMovingThemselves = keyVoidsSpawnProtection( keyCode )
-
-            if ( playerIsMovingThemselves ) then
-                delayRemoveSpawnProtection( player )
-            end
-        end
+    local playerIsMovingThemselves = keyVoidsSpawnProtection( keyCode )
+	if ( playerIsMovingThemselves ) then
+    	delayRemoveSpawnProtection( player )
     end
 end
 
 -- Prevents damage if a player has spawn protection
 local function preventDamageDuringSpawnProtection( player, damageInfo )
-
-    if ( playerHasSpawnProtection( player ) ) then
-        damageInfo:SetDamage( 0 )
+	if not playerHasSpawnProtection( player ) then return end
+	damageInfo:SetDamage( 0 )
         return false
     end
 end
@@ -203,23 +194,21 @@ hook.Add("PlayerSwitchWeapon", "CFCspawnProtectionWeaponChange", spawnProtection
 -- Remove spawn protection when leaving Pvp (just cleanup)
 hook.Remove("PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP")
 hook.Add("PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP", function(player)
-	if( playerHasSpawnProtection( player ) ) then
-		removeSpawnProtection(player)
-		setPlayerVisible( player )
-		removeDecayTimer( player )
-		removeDelayedRemoveTimer( player )
-	end
+	if not playerHasSpawnProtection( player ) then return end
+	removeSpawnProtection(player)
+	setPlayerVisible( player )
+	removeDecayTimer( player )
+	removeDelayedRemoveTimer( player )
 end)
 
 -- Remove spawn protection when player enters vehicle
 hook.Remove("PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle")
 hook.Add("PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle", function(player)
-	if( playerHasSpawnProtection( player ) ) then
-		removeSpawnProtection(player)
-		setPlayerVisible( player )
-		removeDecayTimer( player )
-		removeDelayedRemoveTimer( player )
-	end
+	if not playerHasSpawnProtection( player ) then return end
+	removeSpawnProtection(player)
+	setPlayerVisible( player )
+	removeDecayTimer( player )
+	removeDelayedRemoveTimer( player )
 end)
 
 -- Enable spawn protection when spawning in PvP
