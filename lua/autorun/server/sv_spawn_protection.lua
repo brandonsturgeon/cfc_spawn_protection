@@ -171,7 +171,7 @@ local function spawnProtectionMoveCheck( player, keyCode )
     if ( !playerIsDisablingSpawnProtection( player ) ) then
 
         if ( playerHasSpawnProtection( player ) ) then
-            local playerIsMovingThemselves = keyVoidsSpawnProtection( keyCode )
+            local playerIsMovingThemselves = keyVoidsSpawnProtection[keyCode]
 
             if ( playerIsMovingThemselves ) then
                 delayRemoveSpawnProtection( player )
