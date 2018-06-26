@@ -109,14 +109,13 @@ end
 
 local function playerSpawnedAtEnemySpawnPoint( player )
     local spawnPoint = player.LinkedSpawnPoint
-    if ( spawnPoint and IsValid(spawnPoint) ) then
-        local spawnPointOwner = spawnPoint:CPPIGetOwner()
-        if ( spawnPointOwner != player ) then
-            return true
-        end
-    end
-	
-    return false
+    if not spawnPoint then return false end
+    if not IsValid( spawnPoint ) then return false
+
+    local spawnPointOwner = spawnPoint:CPPIGetOwner()
+    if spawnPointOwner == player then return false
+    
+    return true
 end
 
 local function playerIsInPvp( player )
