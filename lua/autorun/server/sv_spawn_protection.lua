@@ -192,11 +192,7 @@ end
 
 -- Prevents damage if a player has spawn protection
 local function preventDamageDuringSpawnProtection( player, damageInfo )
-
-    if ( playerHasSpawnProtection( player ) ) then
-        damageInfo:SetDamage( 0 )
-        return false
-    end
+    return true
 end
 
 -- Hooks --
