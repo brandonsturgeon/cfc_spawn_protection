@@ -135,11 +135,6 @@ local function weaponIsAllowed( weapon )
     return allowedSpawnWeapons[weapon:GetClass()]
 end
 
-local function keyVoidsSpawnProtection( keyCode )
-    return keyVoidsSpawnProtection[keyCode]
-end
-
-
 -- Hook functions --
 
 -- Function called on player spawn to grant spawn protection
