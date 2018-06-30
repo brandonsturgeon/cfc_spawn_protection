@@ -46,6 +46,14 @@ local function setPlayerVisible( player )
     player:Fire( "alpha", 255, 0 )
 end
 
+local function setPlayerNoCollide( player )
+	player:SetCollisionGroup( COLLISION_GROUP_WORLD )
+end
+
+local function setPlayerCollide( player )
+	player:SetCollisionGroup( COLLISION_GROUP_NONE )
+end
+
 -- Creates a unique name for the Spawn Protection Decay timer
 local function playerDecayTimerIdentifier( player )
     return spawnDecayPrefix .. player:SteamID64()
@@ -143,6 +151,7 @@ local function setSpawnProtectionForPvpSpawn( player )
 		if( !playerSpawnedAtEnemySpawnPoint( player ) ) then
 			setSpawnProtection( player )
 			setPlayerTransparent( player )
+			setPlayerNoCollide( player )
 			createDecayTimer( player )
 		end
     end
@@ -158,6 +167,7 @@ local function spawnProtectionWeaponChangeCheck( player, oldWeapon, newWeapon)
             if ( !weaponIsAllowed( newWeapon ) ) then
                 removeSpawnProtection( player )
                 setPlayerVisible( player )
+				setPlayerCollide( player )
                 removeDecayTimer( player )
                 removeDelayedRemoveTimer( player )
             end
@@ -201,6 +211,7 @@ hook.Add("PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP", function(player)
 	if( playerHasSpawnProtection( player ) ) then
 		removeSpawnProtection(player)
 		setPlayerVisible( player )
+		setPlayerCollide( player )
 		removeDecayTimer( player )
 		removeDelayedRemoveTimer( player )
 	end
@@ -212,6 +223,7 @@ hook.Add("PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle", funct
 	if( playerHasSpawnProtection( player ) ) then
 		removeSpawnProtection(player)
 		setPlayerVisible( player )
+		setPlayerCollide( player )
 		removeDecayTimer( player )
 		removeDelayedRemoveTimer( player )
 	end
