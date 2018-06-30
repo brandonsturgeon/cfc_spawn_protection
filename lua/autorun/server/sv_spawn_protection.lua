@@ -167,7 +167,7 @@ local function spawnProtectionWeaponChangeCheck( player, oldWeapon, newWeapon)
             if ( !weaponIsAllowed( newWeapon ) ) then
                 removeSpawnProtection( player )
                 setPlayerVisible( player )
-				setPlayerCollide( player )
+		setPlayerCollide( player )
                 removeDecayTimer( player )
                 removeDelayedRemoveTimer( player )
             end
