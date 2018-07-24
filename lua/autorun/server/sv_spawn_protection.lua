@@ -99,7 +99,7 @@ local function createDelayedRemoveTimer( player )
         removeDecayTimer( player )
     end)
 end
-
+https://gist.github.com/Dinnerbone/943fbcd763c19be188ed6b72a12d7e65
 -- Used to delay the removal of spawn protection
 local function delayRemoveSpawnProtection( player, _delay )
     local delay = _delay or spawnProtectionMoveDelay
@@ -175,8 +175,7 @@ end
 local function preventDamageDuringSpawnProtection( player, damageInfo )
     if not playerHasSpawnProtection( player ) then return end
     damageInfo:SetDamage( 0 )
-        return false
-    end
+    return false
 end
 
 -- Hooks --
