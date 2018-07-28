@@ -119,7 +119,7 @@ local function playerSpawnedAtEnemySpawnPoint( player )
     local spawnPoint = player.LinkedSpawnPoint
     if ( spawnPoint and IsValid(spawnPoint) ) then
         local spawnPointOwner = spawnPoint:CPPIGetOwner()
-        if ( spawnPointOwner != player ) then
+        if ( spawnPointOwner ~= player ) then
             return true
         end
     end
@@ -148,7 +148,7 @@ end
 -- Function called on player spawn to grant spawn protection
 local function setSpawnProtectionForPvpSpawn( player )
     if ( playerIsInPvp( player ) ) then
-		if( !playerSpawnedAtEnemySpawnPoint( player ) ) then
+		if( not playerSpawnedAtEnemySpawnPoint( player ) ) then
 			setSpawnProtection( player )
 			setPlayerTransparent( player )
 			setPlayerNoCollide( player )
@@ -164,7 +164,7 @@ local function spawnProtectionWeaponChangeCheck( player, oldWeapon, newWeapon)
 
         if ( playerHasSpawnProtection( player ) ) then
 
-            if ( !weaponIsAllowed( newWeapon ) ) then
+            if ( not weaponIsAllowed( newWeapon ) ) then
                 removeSpawnProtection( player )
                 setPlayerVisible( player )
                 setPlayerCollide( player )
@@ -178,7 +178,7 @@ end
 -- Called on player keyDown events to check if a movement key was pressed
 -- and remove spawn protection if so
 local function spawnProtectionMoveCheck( player, keyCode )
-    if ( !playerIsDisablingSpawnProtection( player ) ) then
+    if ( not playerIsDisablingSpawnProtection( player ) ) then
 
         if ( playerHasSpawnProtection( player ) ) then
             local playerIsMovingThemselves = keyVoidsSpawnProtection[keyCode]
