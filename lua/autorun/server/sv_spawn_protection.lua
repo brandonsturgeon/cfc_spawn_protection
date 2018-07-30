@@ -47,11 +47,11 @@ local function setPlayerVisible( player )
 end
 
 local function setPlayerNoCollide( player )
-	player:SetCollisionGroup( COLLISION_GROUP_WORLD )
+    player:SetCollisionGroup( COLLISION_GROUP_WORLD )
 end
 
 local function setPlayerCollide( player )
-	player:SetCollisionGroup( COLLISION_GROUP_NONE )
+    player:SetCollisionGroup( COLLISION_GROUP_NONE )
 end
 
 -- Creates a unique name for the Spawn Protection Decay timer
@@ -178,9 +178,7 @@ end
 
 -- Prevents damage if a player has spawn protection
 local function preventDamageDuringSpawnProtection( player, damageInfo )
-    if not playerHasSpawnProtection( player ) then return end
-    damageInfo:SetDamage( 0 )
-    return false
+    if playerHasSpawnProtection( player ) then return true end
 end
 
 -- Hooks --
