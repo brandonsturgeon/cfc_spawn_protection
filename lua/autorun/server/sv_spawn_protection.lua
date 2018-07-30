@@ -12,11 +12,11 @@ local spawnDecayPrefix = "cfc_spawn_decay_timer-"
 local delayedRemovalPrefix = "cfc_spawn_removal_timer-"
 
 -- Table of key enums which are disallowed in spawn protection
-local spawnProtectionMovementKeys = {}
-spawnProtectionMovementKeys[IN_MOVELEFT]  = true
-spawnProtectionMovementKeys[IN_MOVERIGHT] = true
-spawnProtectionMovementKeys[IN_FORWARD]   = true
-spawnProtectionMovementKeys[IN_BACK]      = true
+local keyVoidsSpawnProtection = {}
+keyVoidsSpawnProtection[IN_MOVELEFT]  = true
+keyVoidsSpawnProtection[IN_MOVERIGHT] = true
+keyVoidsSpawnProtection[IN_FORWARD]   = true
+keyVoidsSpawnProtection[IN_BACK]      = true
 
 
 -- Weapons allowed to the player which won't break spawn protection
@@ -44,6 +44,14 @@ end
 local function setPlayerVisible( player )
     player:SetRenderMode( RENDERMODE_NORMAL )
     player:Fire( "alpha", 255, 0 )
+end
+
+local function setPlayerNoCollide( player )
+	player:SetCollisionGroup( COLLISION_GROUP_WORLD )
+end
+
+local function setPlayerCollide( player )
+	player:SetCollisionGroup( COLLISION_GROUP_NONE )
 end
 
 -- Creates a unique name for the Spawn Protection Decay timer
@@ -133,11 +141,6 @@ local function weaponIsAllowed( weapon )
     return allowedSpawnWeapons[weapon:GetClass()]
 end
 
-local function keyVoidsSpawnProtection( keyCode )
-    return spawnProtectionMovementKeys[keyCode]
-end
-
-
 -- Hook functions --
 
 -- Function called on player spawn to grant spawn protection
@@ -147,6 +150,7 @@ local function setSpawnProtectionForPvpSpawn( player )
     
     setSpawnProtection( player )
     setPlayerTransparent( player )
+    setPlayerNoCollide( player )
     createDecayTimer( player )
 end
 
@@ -159,6 +163,7 @@ local function spawnProtectionWeaponChangeCheck( player, oldWeapon, newWeapon)
 
     removeSpawnProtection( player )
     setPlayerVisible( player )
+    setPlayerCollide( player )
     removeDecayTimer( player )
     removeDelayedRemoveTimer( player )
 end
@@ -190,6 +195,7 @@ hook.Add("PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP", function(player)
     if not playerHasSpawnProtection( player ) then return end
     removeSpawnProtection(player)
     setPlayerVisible( player )
+    setPlayerCollide( player )
     removeDecayTimer( player )
     removeDelayedRemoveTimer( player )
 end)
@@ -200,6 +206,7 @@ hook.Add("PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle", funct
     if not playerHasSpawnProtection( player ) then return end
     removeSpawnProtection(player)
     setPlayerVisible( player )
+    setPlayerCollide( player )
     removeDecayTimer( player )
     removeDelayedRemoveTimer( player )
 end)
