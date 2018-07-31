@@ -6,6 +6,9 @@ local spawnProtectionMoveDelay = 1
 -- Time in seconds before spawn protection wears off if no action is taken
 local spawnProtectionDecayTime = 10
 
+-- How long players are allowed to hold weapons after spawning (in seconds)
+local spawnProtectionWeaponGracePeriod = 0.001
+
 -- Prefix for the internal timer names - used to avoid timer collision
 local spawnDecayPrefix = "cfc_spawn_decay_timer-"
 
@@ -67,6 +70,10 @@ end
 -- Set Spawn Protection
 local function setSpawnProtection( player )
     player:SetNWBool("hasSpawnProtection", true)
+end
+
+local function setLastSpawnTime( player )
+	player:SetNWInt("lastSpawnTime", CurTime())
 end
 
 -- Remove Decay Timer
@@ -148,6 +155,7 @@ local function setSpawnProtectionForPvpSpawn( player )
     if not playerIsInPvp( player ) then return end
     if playerSpawnedAtEnemySpawnPoint( player ) then return end
     
+	setLastSpawnTime( player )
     setSpawnProtection( player )
     setPlayerTransparent( player )
     setPlayerNoCollide( player )
@@ -156,16 +164,19 @@ end
 
 -- Called on weapon change to check if the weapon is allowed,
 -- and remove spawn protection if it's not
-local function spawnProtectionWeaponChangeCheck( player, oldWeapon, newWeapon)
-    if not playerIsInPvp( player ) then return end
-    if not playerHasSpawnProtection( player ) then return end
-    if weaponIsAllowed( newWeapon ) then return end
+local function spawnProtectionWeaponChangeCheck( player, oldWeapon, newWeapon)	
+	if not playerIsInPvp( player ) then return end
+	if not playerHasSpawnProtection( player ) then return end
+	if weaponIsAllowed( newWeapon ) then return end
 
-    removeSpawnProtection( player )
-    setPlayerVisible( player )
-    setPlayerCollide( player )
-    removeDecayTimer( player )
-    removeDelayedRemoveTimer( player )
+	local lastSpawnTime = player:GetNWInt( "lastSpawnTime", CurTime() - spawnProtectionWeaponGracePeriod )
+	if lastSpawnTime >= CurTime() - spawnProtectionWeaponGracePeriod then player:ChatPrint("Ignoring no-weapon rule during spawn");return end
+
+	removeSpawnProtection( player )
+	setPlayerVisible( player )
+	setPlayerCollide( player )
+	removeDecayTimer( player )
+	removeDelayedRemoveTimer( player )
 end
 
 -- Called on player keyDown events to check if a movement key was pressed
@@ -173,7 +184,7 @@ end
 local function spawnProtectionMoveCheck( player, keyCode )
     if playerIsDisablingSpawnProtection( player ) then return end
     if not playerHasSpawnProtection( player ) then return end   
-    if keyVoidsSpawnProtection( keyCode ) then delayRemoveSpawnProtection( player ) end
+    if keyVoidsSpawnProtection[ keyCode ] then delayRemoveSpawnProtection( player ) end
 end
 
 -- Prevents damage if a player has spawn protection
@@ -185,7 +196,7 @@ end
 
 -- Remove spawn protection when a weapon is drawn
 hook.Remove("PlayerSwitchWeapon", "CFCspawnProtectionWeaponChange")
-hook.Add("PlayerSwitchWeapon", "CFCspawnProtectionWeaponChange", spawnProtectionWeaponChangeCheck)
+hook.Add("PlayerSwitchWeapon", "CFCspawnProtectionWeaponChange", spawnProtectionWeaponChangeCheck, HOOK_LOW)
 
 -- Remove spawn protection when leaving Pvp (just cleanup)
 hook.Remove("PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP")
