@@ -73,7 +73,7 @@ local function setSpawnProtection( player )
 end
 
 local function setLastSpawnTime( player )
-	player:SetNWInt("lastSpawnTime", CurTime())
+    player:SetNWInt("lastSpawnTime", CurTime())
 end
 
 -- Remove Decay Timer
@@ -128,7 +128,7 @@ local function playerSpawnedAtEnemySpawnPoint( player )
 
     local spawnPointOwner = spawnPoint:CPPIGetOwner()
     if spawnPointOwner == player then return false end
-    
+
     return true
 end
 
@@ -154,8 +154,8 @@ end
 local function setSpawnProtectionForPvpSpawn( player )
     if not playerIsInPvp( player ) then return end
     if playerSpawnedAtEnemySpawnPoint( player ) then return end
-    
-	setLastSpawnTime( player )
+
+    setLastSpawnTime( player )
     setSpawnProtection( player )
     setPlayerTransparent( player )
     setPlayerNoCollide( player )
@@ -164,26 +164,26 @@ end
 
 -- Called on weapon change to check if the weapon is allowed,
 -- and remove spawn protection if it's not
-local function spawnProtectionWeaponChangeCheck( player, oldWeapon, newWeapon)	
-	if not playerIsInPvp( player ) then return end
-	if not playerHasSpawnProtection( player ) then return end
-	if weaponIsAllowed( newWeapon ) then return end
+local function spawnProtectionWeaponChangeCheck( player, oldWeapon, newWeapon)
+    if not playerIsInPvp( player ) then return end
+    if not playerHasSpawnProtection( player ) then return end
+    if weaponIsAllowed( newWeapon ) then return end
 
-	local lastSpawnTime = player:GetNWInt( "lastSpawnTime", CurTime() - spawnProtectionWeaponGracePeriod )
-	if lastSpawnTime >= CurTime() - spawnProtectionWeaponGracePeriod then return end
+    local lastSpawnTime = player:GetNWInt( "lastSpawnTime", CurTime() - spawnProtectionWeaponGracePeriod )
+    if lastSpawnTime >= CurTime() - spawnProtectionWeaponGracePeriod then return end
 
-	removeSpawnProtection( player )
-	setPlayerVisible( player )
-	setPlayerCollide( player )
-	removeDecayTimer( player )
-	removeDelayedRemoveTimer( player )
+    removeSpawnProtection( player )
+    setPlayerVisible( player )
+    setPlayerCollide( player )
+    removeDecayTimer( player )
+    removeDelayedRemoveTimer( player )
 end
 
 -- Called on player keyDown events to check if a movement key was pressed
 -- and remove spawn protection if so
 local function spawnProtectionMoveCheck( player, keyCode )
     if playerIsDisablingSpawnProtection( player ) then return end
-    if not playerHasSpawnProtection( player ) then return end   
+    if not playerHasSpawnProtection( player ) then return end
     if keyVoidsSpawnProtection[ keyCode ] then delayRemoveSpawnProtection( player ) end
 end
 
