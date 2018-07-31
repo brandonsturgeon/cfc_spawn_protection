@@ -170,7 +170,7 @@ local function spawnProtectionWeaponChangeCheck( player, oldWeapon, newWeapon)
 	if weaponIsAllowed( newWeapon ) then return end
 
 	local lastSpawnTime = player:GetNWInt( "lastSpawnTime", CurTime() - spawnProtectionWeaponGracePeriod )
-	if lastSpawnTime >= CurTime() - spawnProtectionWeaponGracePeriod then player:ChatPrint("Ignoring no-weapon rule during spawn");return end
+	if lastSpawnTime >= CurTime() - spawnProtectionWeaponGracePeriod then return end
 
 	removeSpawnProtection( player )
 	setPlayerVisible( player )
