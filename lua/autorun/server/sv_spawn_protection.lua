@@ -133,7 +133,7 @@ local function playerSpawnedAtEnemySpawnPoint( player )
 end
 
 local function playerIsInPvp( player )
-    return player:GetNWBool("CFC_PvP_Mode", false)
+    return player:GetNWBool("PVPMode", false)
 end
 
 local function playerHasSpawnProtection( player )
