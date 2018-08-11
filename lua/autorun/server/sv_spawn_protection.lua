@@ -100,6 +100,7 @@ local function createDecayTimer( ply )
     timer.Create( playerIdentifer, spawnProtectionDecayTime, 1, function()
         removeSpawnProtection( ply )
         setPlayerVisible( ply )
+        setPlayerCollide( ply )
         removeDelayedRemoveTimer( ply )
     end)
 end
@@ -111,6 +112,7 @@ local function createDelayedRemoveTimer( ply )
         ply:SetNWBool("disablingSpawnProtection", false)
         removeSpawnProtection( ply )
         setPlayerVisible( ply )
+        setPlayerCollide( ply )
         removeDecayTimer( ply )
     end)
 end
@@ -133,7 +135,7 @@ local function playerSpawnedAtEnemySpawnPoint( ply )
 end
 
 local function playerIsInPvp( ply )
-    return ply:GetNWBool("PVPMode", false)
+    return ply:GetNWBool("CFC_PvP_Mode", false)
 end
 
 local function playerHasSpawnProtection( ply )
