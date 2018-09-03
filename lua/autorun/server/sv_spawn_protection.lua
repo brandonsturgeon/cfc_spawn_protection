@@ -158,10 +158,8 @@ local function setSpawnProtectionForPvpSpawn( ply )
     if playerSpawnedAtEnemySpawnPoint( ply ) then return end
 
     ply:Give("weapon_physgun")
-    ply:SetActiveWeapon("weapon_physgun")
     timer.Simple(0, function()
        ply:Give("weapon_physgun")
-       ply:SetActiveWeapon("weapon_physgun")
     end)
     
     setLastSpawnTime( ply )
