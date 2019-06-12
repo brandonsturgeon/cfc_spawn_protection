@@ -36,65 +36,92 @@ local allowedSpawnWeapons = {
 
 -- Helpers / Wrappers --
 
+local IsValidPlayer( ply )
+    local isValidPlayer = IsValid( ply ) and ply:IsPlayer()
+end
 -- Makes a given player transparent
 local function setPlayerTransparent( ply )
+    if not IsValidPlayer( ply ) then return end
+
     ply:SetRenderMode( RENDERMODE_TRANSALPHA )
     ply:Fire( "alpha", 175, 0 )
 end
 
 -- Returns a given player to visible state
 local function setPlayerVisible( ply )
+    if not IsValidPlayer( ply ) then return end
+
     ply:SetRenderMode( RENDERMODE_NORMAL )
     ply:Fire( "alpha", 255, 0 )
 end
 
 local function setPlayerNoCollide( ply )
+    if not IsValidPlayer( ply ) then return end
+
     ply:SetCollisionGroup( COLLISION_GROUP_WORLD )
 end
 
 local function setPlayerCollide( ply )
+    if not IsValidPlayer( ply ) then return end
+
     ply:SetCollisionGroup( COLLISION_GROUP_NONE )
 end
 
 -- Creates a unique name for the Spawn Protection Decay timer
 local function playerDecayTimerIdentifier( ply )
+    if not IsValidPlayer( ply ) then return end
+
     return spawnDecayPrefix .. ply:SteamID64()
 end
 
 -- Creates a unique name for the Delayed Removal Timer
 local function playerDelayedRemovalTimerIdentifier( ply )
+    if not IsValidPlayer( ply ) then return end
+
     return delayedRemovalPrefix .. ply:SteamID64()
 end
 
 -- Set Spawn Protection
 local function setSpawnProtection( ply )
+    if not IsValidPlayer( ply ) then return end
+
     ply:SetNWBool("hasSpawnProtection", true)
 end
 
 local function setLastSpawnTime( ply )
+    if not IsValidPlayer( ply ) then return end
+
     ply:SetNWInt("lastSpawnTime", CurTime())
 end
 
 -- Remove Decay Timer
 local function removeDecayTimer( ply )
+    if not IsValidPlayer( ply ) then return end
+
     local playerIdentifer = playerDecayTimerIdentifier( ply )
     timer.Remove( playerIdentifer )
 end
 
 -- Remove Delayed Removal Timer
 local function removeDelayedRemoveTimer( ply )
+    if not IsValidPlayer( ply ) then return end
+
     local playerIdentifer = playerDelayedRemovalTimerIdentifier( ply )
     timer.Remove( playerIdentifer )
 end
 
 -- Revoke spawn protection for a player
 local function removeSpawnProtection( ply )
+    if not IsValidPlayer( ply ) then return end
+
     ply:ChatPrint("You've lost spawn protection")
     ply:SetNWBool("hasSpawnProtection", false)
 end
 
 -- Creates a decay timer which will expire after spawnProtectionDecayTime
 local function createDecayTimer( ply )
+    if not IsValidPlayer( ply ) then return end
+
     local playerIdentifer = playerDecayTimerIdentifier( ply )
     timer.Create( playerIdentifer, spawnProtectionDecayTime, 1, function()
         removeSpawnProtection( ply )
@@ -106,6 +133,8 @@ end
 
 -- Creates a delayed removal time which will expire after spawnProtectionMoveDelay
 local function createDelayedRemoveTimer( ply )
+    if not IsValidPlayer( ply ) then return end
+
     local playerIdentifer = playerDelayedRemovalTimerIdentifier( ply )
     timer.Create( playerIdentifer, spawnProtectionMoveDelay, 1, function()
         ply:SetNWBool("disablingSpawnProtection", false)
@@ -118,12 +147,16 @@ end
 
 -- Used to delay the removal of spawn protection
 local function delayRemoveSpawnProtection( ply, _delay )
+    if not IsValidPlayer( ply ) then return end
+
     local delay = _delay or spawnProtectionMoveDelay
     ply:SetNWBool("disablingSpawnProtection", true)
     createDelayedRemoveTimer( ply )
 end
 
 local function playerSpawnedAtEnemySpawnPoint( ply )
+    if not IsValidPlayer( ply ) then return end
+
     local spawnPoint = ply.LinkedSpawnPoint
     if not spawnPoint or not IsValid( spawnPoint ) then return false end
 
@@ -134,14 +167,20 @@ local function playerSpawnedAtEnemySpawnPoint( ply )
 end
 
 local function playerIsInPvp( ply )
+    if not IsValidPlayer( ply ) then return end
+
     return ply:GetNWBool("CFC_PvP_Mode", false)
 end
 
 local function playerHasSpawnProtection( ply )
+    if not IsValidPlayer( ply ) then return end
+
     return ply:GetNWBool("hasSpawnProtection", false)
 end
 
 local function playerIsDisablingSpawnProtection( ply )
+    if not IsValidPlayer( ply ) then return end
+
     return ply:GetNWBool("disablingSpawnProtection", false)
 end
 
@@ -153,7 +192,9 @@ end
 
 -- Function called on player spawn to grant spawn protection
 local function setSpawnProtectionForPvpSpawn( ply )
+    if not IsValidPlayer( ply ) then return end
     if not playerIsInPvp( ply ) then return end
+
     if playerSpawnedAtEnemySpawnPoint( ply ) then return end
 
     ply:Give("weapon_physgun")
@@ -173,6 +214,7 @@ end
 -- Called on weapon change to check if the weapon is allowed,
 -- and remove spawn protection if it's not
 local function spawnProtectionWeaponChangeCheck( ply, oldWeapon, newWeapon)
+    if not IsValidPlayer( ply ) then return end
     if not playerIsInPvp( ply ) then return end
     if not playerHasSpawnProtection( ply ) then return end
     if weaponIsAllowed( newWeapon ) then return end
@@ -190,6 +232,7 @@ end
 -- Called on player keyDown events to check if a movement key was pressed
 -- and remove spawn protection if so
 local function spawnProtectionMoveCheck( ply, keyCode )
+    if not IsValidPlayer( ply ) then return end
     if playerIsDisablingSpawnProtection( ply ) then return end
     if not playerHasSpawnProtection( ply ) then return end
     if keyVoidsSpawnProtection[ keyCode ] then delayRemoveSpawnProtection( ply ) end
@@ -197,6 +240,7 @@ end
 
 -- Prevents damage if a player has spawn protection
 local function preventDamageDuringSpawnProtection( ply, damageInfo )
+    if not IsValidPlayer( ply ) then return end
     if playerHasSpawnProtection( ply ) then return true end
 end
 
@@ -209,6 +253,7 @@ hook.Add("PlayerSwitchWeapon", "CFCspawnProtectionWeaponChange", spawnProtection
 -- Remove spawn protection when leaving Pvp (just cleanup)
 hook.Remove("PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP")
 hook.Add("PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP", function(ply)
+    if not IsValidPlayer( ply ) then return end
     if not playerHasSpawnProtection( ply ) then return end
     removeSpawnProtection(ply)
     setPlayerVisible( ply )
@@ -220,6 +265,7 @@ end)
 -- Remove spawn protection when player enters vehicle
 hook.Remove("PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle")
 hook.Add("PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle", function(ply)
+    if not IsValidPlayer( ply ) then return end
     if not playerHasSpawnProtection( ply ) then return end
     removeSpawnProtection(ply)
     setPlayerVisible( ply )
