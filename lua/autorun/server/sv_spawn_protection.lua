@@ -38,6 +38,8 @@ local allowedSpawnWeapons = {
 
 local IsValidPlayer( ply )
     local isValidPlayer = IsValid( ply ) and ply:IsPlayer()
+
+    return isValidPlayer
 end
 -- Makes a given player transparent
 local function setPlayerTransparent( ply )
