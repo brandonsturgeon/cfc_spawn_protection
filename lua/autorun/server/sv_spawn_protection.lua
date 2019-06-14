@@ -26,7 +26,6 @@ keyVoidsSpawnProtection[IN_BACK]      = true
 local allowedSpawnWeapons = {
     ["Physics Gun"]       = true,
     ["weapon_physgun"]    = true,
-    ["weapon_physcannon"] = true,
     ["gmod_tool"]         = true,
     ["gmod_camera"]       = true,
     ["weapon_medkit"]     = true,
