@@ -36,7 +36,7 @@ local allowedSpawnWeapons = {
 
 -- Helpers / Wrappers --
 
-local IsValidPlayer( ply )
+local function IsValidPlayer( ply )
     local isValidPlayer = IsValid( ply ) and ply:IsPlayer()
 
     return isValidPlayer
