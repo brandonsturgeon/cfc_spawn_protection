@@ -100,6 +100,8 @@ end
 
 -- Revoke spawn protection for a player
 local function removeSpawnProtection( ply )
+    if not isValidPlayer( ply ) then return end
+
     ply:ChatPrint("You've lost spawn protection")
     ply:SetNWBool("hasSpawnProtection", false)
 end
