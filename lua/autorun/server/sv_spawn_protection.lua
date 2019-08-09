@@ -36,7 +36,7 @@ local allowedSpawnWeapons = {
 
 -- Helpers / Wrappers --
 
-local function IsValidPlayer( ply )
+local function isValidPlayer( ply )
     local isValidPlayer = IsValid( ply ) and ply:IsPlayer()
 
     return isValidPlayer
@@ -83,7 +83,7 @@ end
 -- Remove Decay Timer
 local function removeDecayTimer( ply )
     -- Timer might exist after player has left
-    if not IsValidPlayer( ply ) then return end
+    if not isValidPlayer( ply ) then return end
 
     local playerIdentifer = playerDecayTimerIdentifier( ply )
     timer.Remove( playerIdentifer )
@@ -92,7 +92,7 @@ end
 -- Remove Delayed Removal Timer
 local function removeDelayedRemoveTimer( ply )
     -- Timer might exist after player has left
-    if not IsValidPlayer( ply ) then return end
+    if not isValidPlayer( ply ) then return end
 
     local playerIdentifer = playerDelayedRemovalTimerIdentifier( ply )
     timer.Remove( playerIdentifer )
@@ -100,7 +100,7 @@ end
 
 -- Revoke spawn protection for a player
 local function removeSpawnProtection( ply )
-    if not IsValidPlayer( ply ) then return end
+    if not isValidPlayer( ply ) then return end
 
     ply:ChatPrint("You've lost spawn protection")
     ply:SetNWBool("hasSpawnProtection", false)
@@ -166,7 +166,7 @@ end
 
 -- Function called on player spawn to grant spawn protection
 local function setSpawnProtectionForPvpSpawn( ply )
-    if not IsValidPlayer( ply ) then return end
+    if not isValidPlayer( ply ) then return end
     if not playerIsInPvp( ply ) then return end
 
     if playerSpawnedAtEnemySpawnPoint( ply ) then return end
