@@ -49,6 +49,8 @@ end
 
 -- Returns a given player to visible state
 local function setPlayerVisible( ply )
+    if not isValidPlayer( ply ) then return end
+
     ply:SetRenderMode( RENDERMODE_NORMAL )
     ply:Fire( "alpha", 255, 0 )
 end
@@ -58,6 +60,8 @@ local function setPlayerNoCollide( ply )
 end
 
 local function setPlayerCollide( ply )
+    if not isValidPlayer( ply ) then return end
+
     ply:SetCollisionGroup( COLLISION_GROUP_NONE )
 end
 
