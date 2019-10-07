@@ -6,7 +6,7 @@ local spawnProtectionMoveDelay = 2
 -- Time in seconds before spawn protection wears off if no action is taken
 local spawnProtectionDecayTime = 10
 
--- How long players are allowed to hold weapons after spawning (in seconds)
+-- How long players are allowed to hold weapons after spawning ( in seconds )
 local spawnProtectionWeaponGracePeriod = 0.001
 
 -- Prefix for the internal timer names - used to avoid timer collision
@@ -77,11 +77,11 @@ end
 
 -- Set Spawn Protection
 local function setSpawnProtection( ply )
-    ply:SetNWBool("hasSpawnProtection", true)
+    ply:SetNWBool( "hasSpawnProtection", true )
 end
 
 local function setLastSpawnTime( ply )
-    ply:SetNWInt("lastSpawnTime", CurTime())
+    ply:SetNWInt( "lastSpawnTime", CurTime() )
 end
 
 -- Remove Decay Timer
@@ -106,8 +106,8 @@ end
 local function removeSpawnProtection( ply )
     if not isValidPlayer( ply ) then return end
 
-    ply:ChatPrint("You've lost spawn protection")
-    ply:SetNWBool("hasSpawnProtection", false)
+    ply:ChatPrint( "You've lost spawn protection" )
+    ply:SetNWBool( "hasSpawnProtection", false )
 end
 
 -- Creates a decay timer which will expire after spawnProtectionDecayTime
@@ -118,25 +118,25 @@ local function createDecayTimer( ply )
         setPlayerVisible( ply )
         setPlayerCollide( ply )
         removeDelayedRemoveTimer( ply )
-    end)
+    end )
 end
 
 -- Creates a delayed removal time which will expire after spawnProtectionMoveDelay
 local function createDelayedRemoveTimer( ply )
     local playerIdentifer = playerDelayedRemovalTimerIdentifier( ply )
     timer.Create( playerIdentifer, spawnProtectionMoveDelay, 1, function()
-        ply:SetNWBool("disablingSpawnProtection", false)
+        ply:SetNWBool( "disablingSpawnProtection", false )
         removeSpawnProtection( ply )
         setPlayerVisible( ply )
         setPlayerCollide( ply )
         removeDecayTimer( ply )
-    end)
+    end )
 end
 
 -- Used to delay the removal of spawn protection
 local function delayRemoveSpawnProtection( ply, _delay )
     local delay = _delay or spawnProtectionMoveDelay
-    ply:SetNWBool("disablingSpawnProtection", true)
+    ply:SetNWBool( "disablingSpawnProtection", true )
     createDelayedRemoveTimer( ply )
 end
 
@@ -151,15 +151,15 @@ local function playerSpawnedAtEnemySpawnPoint( ply )
 end
 
 local function playerIsInPvp( ply )
-    return ply:GetNWBool("CFC_PvP_Mode", false)
+    return ply:GetNWBool( "CFC_PvP_Mode", false )
 end
 
 local function playerHasSpawnProtection( ply )
-    return ply:GetNWBool("hasSpawnProtection", false)
+    return ply:GetNWBool( "hasSpawnProtection", false )
 end
 
 local function playerIsDisablingSpawnProtection( ply )
-    return ply:GetNWBool("disablingSpawnProtection", false)
+    return ply:GetNWBool( "disablingSpawnProtection", false )
 end
 
 local function weaponIsAllowed( weapon )
@@ -175,13 +175,13 @@ local function setSpawnProtectionForPvpSpawn( ply )
 
     if playerSpawnedAtEnemySpawnPoint( ply ) then return end
 
-    ply:Give("weapon_physgun")
-    ply:SelectWeapon("weapon_physgun")
-    timer.Simple(0, function()
-       ply:Give("weapon_physgun")
-       ply:SelectWeapon("weapon_physgun")
-    end)
-    
+    ply:Give( "weapon_physgun" )
+    ply:SelectWeapon( "weapon_physgun" )
+    timer.Simple( 0, function()
+       ply:Give( "weapon_physgun" )
+       ply:SelectWeapon( "weapon_physgun" )
+    end )
+
     setLastSpawnTime( ply )
     setSpawnProtection( ply )
     setPlayerTransparent( ply )
@@ -191,7 +191,7 @@ end
 
 -- Called on weapon change to check if the weapon is allowed,
 -- and remove spawn protection if it's not
-local function spawnProtectionWeaponChangeCheck( ply, oldWeapon, newWeapon)
+local function spawnProtectionWeaponChangeCheck( ply, oldWeapon, newWeapon )
     if not playerIsInPvp( ply ) then return end
     if not playerHasSpawnProtection( ply ) then return end
     if weaponIsAllowed( newWeapon ) then return end
@@ -222,39 +222,39 @@ end
 -- Hooks --
 
 -- Remove spawn protection when a weapon is drawn
-hook.Remove("PlayerSwitchWeapon", "CFCspawnProtectionWeaponChange")
-hook.Add("PlayerSwitchWeapon", "CFCspawnProtectionWeaponChange", spawnProtectionWeaponChangeCheck, HOOK_LOW)
+hook.Remove( "PlayerSwitchWeapon", "CFCspawnProtectionWeaponChange" )
+hook.Add( "PlayerSwitchWeapon", "CFCspawnProtectionWeaponChange", spawnProtectionWeaponChangeCheck, HOOK_LOW )
 
--- Remove spawn protection when leaving Pvp (just cleanup)
-hook.Remove("PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP")
-hook.Add("PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP", function(ply)
+-- Remove spawn protection when leaving Pvp ( just cleanup )
+hook.Remove( "PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP" )
+hook.Add( "PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP", function( ply )
     if not playerHasSpawnProtection( ply ) then return end
-    removeSpawnProtection(ply)
+    removeSpawnProtection( ply )
     setPlayerVisible( ply )
     setPlayerCollide( ply )
     removeDecayTimer( ply )
     removeDelayedRemoveTimer( ply )
-end)
+end )
 
 -- Remove spawn protection when player enters vehicle
-hook.Remove("PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle")
-hook.Add("PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle", function(ply)
+hook.Remove( "PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle" )
+hook.Add( "PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle", function( ply )
     if not playerHasSpawnProtection( ply ) then return end
-    removeSpawnProtection(ply)
+    removeSpawnProtection( ply )
     setPlayerVisible( ply )
     setPlayerCollide( ply )
     removeDecayTimer( ply )
     removeDelayedRemoveTimer( ply )
-end)
+end )
 
 -- Enable spawn protection when spawning in PvP
-hook.Remove("PlayerSpawn", "CFCsetSpawnProtection")
-hook.Add("PlayerSpawn", "CFCsetSpawnProtection", setSpawnProtectionForPvpSpawn)
+hook.Remove( "PlayerSpawn", "CFCsetSpawnProtection" )
+hook.Add( "PlayerSpawn", "CFCsetSpawnProtection", setSpawnProtectionForPvpSpawn )
 
 -- Trigger spawn protection removal on player move
-hook.Remove("KeyPress", "CFCspawnProtectionMoveCheck")
-hook.Add("KeyPress", "CFCspawnProtectionMoveCheck", spawnProtectionMoveCheck)
+hook.Remove( "KeyPress", "CFCspawnProtectionMoveCheck" )
+hook.Add( "KeyPress", "CFCspawnProtectionMoveCheck", spawnProtectionMoveCheck )
 
 -- Prevent entity damage while in spawn protection
-hook.Remove("EntityTakeDamage", "CFCpreventDamageDuringSpawnProtection")
-hook.Add("EntityTakeDamage", "CFCpreventDamageDuringSpawnProtection", preventDamageDuringSpawnProtection, HOOK_HIGH)
+hook.Remove( "EntityTakeDamage", "CFCpreventDamageDuringSpawnProtection" )
+hook.Add( "EntityTakeDamage", "CFCpreventDamageDuringSpawnProtection", preventDamageDuringSpawnProtection, HOOK_HIGH )
