@@ -37,9 +37,9 @@ local allowedSpawnWeapons = {
 -- Helpers / Wrappers --
 
 local function isValidPlayer( ply )
-    local isValidPlayer = IsValid( ply ) and ply:IsPlayer()
+    local isValid = IsValid( ply ) and ply:IsPlayer()
 
-    return isValidPlayer
+    return isValid
 end
 -- Makes a given player transparent
 local function setPlayerTransparent( ply )
@@ -134,8 +134,7 @@ local function createDelayedRemoveTimer( ply )
 end
 
 -- Used to delay the removal of spawn protection
-local function delayRemoveSpawnProtection( ply, _delay )
-    local delay = _delay or spawnProtectionMoveDelay
+local function delayRemoveSpawnProtection( ply )
     ply:SetNWBool( "disablingSpawnProtection", true )
     createDelayedRemoveTimer( ply )
 end
