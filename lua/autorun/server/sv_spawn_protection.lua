@@ -1,3 +1,5 @@
+local hookRun = hook.Run
+
 -- Config Variables --
 --
 -- Time in seconds after moving for the first time that the player will lose spawn protection
@@ -149,10 +151,6 @@ local function playerSpawnedAtEnemySpawnPoint( ply )
     return true
 end
 
-local function playerIsInPvp( ply )
-    return ply:GetNWBool( "CFC_PvP_Mode", false )
-end
-
 local function playerHasSpawnProtection( ply )
     return ply:GetNWBool( "hasSpawnProtection", false )
 end
@@ -168,9 +166,11 @@ end
 -- Hook functions --
 
 -- Function called on player spawn to grant spawn protection
-local function setSpawnProtectionForPvpSpawn( ply )
+local function setProtectionOnSpawn( ply )
     if not isValidPlayer( ply ) then return end
-    if not playerIsInPvp( ply ) then return end
+
+    local shouldSet = hookRun( "CFC_SpawnProtection_ShouldSetSpawnProtection", ply )
+    if shouldSet == false then return end
 
     if playerSpawnedAtEnemySpawnPoint( ply ) then return end
 
@@ -191,7 +191,9 @@ end
 -- Called on weapon change to check if the weapon is allowed,
 -- and remove spawn protection if it's not
 local function spawnProtectionWeaponChangeCheck( ply, oldWeapon, newWeapon )
-    if not playerIsInPvp( ply ) then return end
+    local shouldCheck = hookRun( "CFC_SpawnProtection_ShouldCheckWeaponChange", ply, oldWeapon, newWeapon )
+    if shouldCheck == false then return end
+
     if not playerHasSpawnProtection( ply ) then return end
     if weaponIsAllowed( newWeapon ) then return end
 
@@ -218,37 +220,32 @@ local function preventDamageDuringSpawnProtection( ply, damageInfo )
     if playerHasSpawnProtection( ply ) then return true end
 end
 
+CFCSpawnProtection = {}
+
+function CFCSpawnProtection:cleanup( ply )
+    if not playerHasSpawnProtection( ply ) then return end
+    removeSpawnProtection( ply )
+    setPlayerVisible( ply )
+    setPlayerCollide( ply )
+    removeDecayTimer( ply )
+    removeDelayedRemoveTimer( ply )
+end
+
 -- Hooks --
 
 -- Remove spawn protection when a weapon is drawn
 hook.Remove( "PlayerSwitchWeapon", "CFCspawnProtectionWeaponChange" )
 hook.Add( "PlayerSwitchWeapon", "CFCspawnProtectionWeaponChange", spawnProtectionWeaponChangeCheck, HOOK_LOW )
 
--- Remove spawn protection when leaving Pvp ( just cleanup )
-hook.Remove( "PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP" )
-hook.Add( "PlayerExitPvP", "CFCremoveSpawnProtectionOnExitPvP", function( ply )
-    if not playerHasSpawnProtection( ply ) then return end
-    removeSpawnProtection( ply )
-    setPlayerVisible( ply )
-    setPlayerCollide( ply )
-    removeDecayTimer( ply )
-    removeDelayedRemoveTimer( ply )
-end )
-
 -- Remove spawn protection when player enters vehicle
 hook.Remove( "PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle" )
 hook.Add( "PlayerEnteredVehicle", "CFCremoveSpawnProtectionOnEnterVehicle", function( ply )
-    if not playerHasSpawnProtection( ply ) then return end
-    removeSpawnProtection( ply )
-    setPlayerVisible( ply )
-    setPlayerCollide( ply )
-    removeDecayTimer( ply )
-    removeDelayedRemoveTimer( ply )
+    CFCSpawnProtection:cleanup( ply )
 end )
 
 -- Enable spawn protection when spawning in PvP
 hook.Remove( "PlayerSpawn", "CFCsetSpawnProtection" )
-hook.Add( "PlayerSpawn", "CFCsetSpawnProtection", setSpawnProtectionForPvpSpawn )
+hook.Add( "PlayerSpawn", "CFCsetSpawnProtection", setProtectionOnSpawn )
 
 -- Trigger spawn protection removal on player move
 hook.Remove( "KeyPress", "CFCspawnProtectionMoveCheck" )
